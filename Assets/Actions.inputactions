@@ -25,6 +25,16 @@
                     "interactions": "",
                     "initialStateCheck": false,
                     "priority": 0
+                },
+                {
+                    "name": "Mouse",
+                    "type": "Value",
+                    "id": "588cf70c-7d68-486d-b1df-de39637d9b10",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true,
+                    "priority": 0
                 }
             ],
             "bindings": [
@@ -146,6 +156,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Log",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ce3106b3-4e8b-4b80-9a59-460f53413b7b",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Mouse",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
