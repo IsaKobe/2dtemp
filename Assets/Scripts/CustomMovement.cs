@@ -7,7 +7,6 @@ public class CustomMovement : MonoBehaviour
     [SerializeField] InputActionAsset inputActions;
     InputAction moveAction;
     InputAction logAction;
-
     InputAction mouseAction;
     Rigidbody2D rigidbody2;
     private void Awake()
