@@ -1,3 +1,4 @@
+using NUnit.Framework.Constraints;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -5,17 +6,22 @@ public class CustomMovement : MonoBehaviour
 {
     [SerializeField] float speed;
     [SerializeField] InputActionAsset inputActions;
-    InputAction moveAction;
+    InputAction moveAction; 
     InputAction logAction;
     InputAction mouseAction;
     Rigidbody2D rigidbody2;
+
+    Animator animator;
+    SpriteRenderer renderer;
     private void Awake()
     {
         moveAction = inputActions.FindAction("Movement");
         logAction = inputActions.FindAction("Log");
         mouseAction = inputActions.FindAction("Mouse");
 
+        animator = GetComponent<Animator>();
         rigidbody2 = GetComponent<Rigidbody2D>();
+        renderer = GetComponent<SpriteRenderer>();
     }
 
     private void OnEnable()
@@ -41,7 +47,7 @@ public class CustomMovement : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        animator.SetBool("IsWalking", true);
     }
 
     // Update is called once per frame
@@ -57,7 +63,12 @@ public class CustomMovement : MonoBehaviour
     
     private void FixedUpdate()
     {
-        Vector2 newPos = rigidbody2.position + (moveAction.ReadValue<Vector2>() * speed);
+        float input = moveAction.ReadValue<float>();
+        animator.SetBool("IsWalking", input != 0);
+
+        renderer.flipX = input < 0;
+
+        Vector2 newPos = rigidbody2.position + new Vector2(input * speed, 0);
         rigidbody2.MovePosition(newPos);
     }
 

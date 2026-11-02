@@ -1,0 +1,6 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" authoring-id="107498258" editor-extension-mode="False">
+    <ui:Label text="Label" style="backdrop-filter: drop-shadow(2 2 5 rgb(253, 0, 0));"/>
+    <ui:Button text="Button"/>
+    <ui:VisualElement style="flex-grow: 0; background-color: rgb(255, 0, 0); width: 94px; height: 145px; align-self: center; justify-content: center; align-content: center; align-items: center;"/>
+    <ui:VisualElement style="flex-grow: 1; backdrop-filter: tint(rgb(106, 106, 106)) opacity(0.5); background-color: rgba(255, 0, 0, 0.192); width: 72px; height: 50px; min-height: 50px; max-height: 50px; position: absolute; top: 175px; left: 165px;"/>
+</ui:UXML>
