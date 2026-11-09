@@ -4,72 +4,134 @@ using UnityEngine.InputSystem;
 
 public class CustomMovement : MonoBehaviour
 {
+    private static readonly int IsHangHash = Animator.StringToHash("IsHang");
+    private static readonly int IsWalkingHash = Animator.StringToHash("IsWalking");
+    private static readonly int IsFlyingHash = Animator.StringToHash("IsFlying");
     [SerializeField] float speed;
     [SerializeField] InputActionAsset inputActions;
     InputAction moveAction; 
-    InputAction logAction;
+    InputAction jumpAction;
     InputAction mouseAction;
     Rigidbody2D rigidbody2;
 
     Animator animator;
     SpriteRenderer renderer;
+
+    ContactPoint2D[] contacts;
     private void Awake()
     {
         moveAction = inputActions.FindAction("Movement");
-        logAction = inputActions.FindAction("Log");
+        jumpAction = inputActions.FindAction("Log");
         mouseAction = inputActions.FindAction("Mouse");
 
         animator = GetComponent<Animator>();
         rigidbody2 = GetComponent<Rigidbody2D>();
         renderer = GetComponent<SpriteRenderer>();
+        contacts = new ContactPoint2D[5];
     }
 
     private void OnEnable()
     {
         moveAction.Enable();
-        logAction.Enable();
+        jumpAction.Enable();
         mouseAction.Enable();
 
-        logAction.performed += LogAction_performed;
+        jumpAction.performed += Jump;
     }
 
-    private void LogAction_performed(InputAction.CallbackContext obj)
+    bool orderedJump = false;
+    private void Jump(InputAction.CallbackContext obj)
     {
-        Debug.Log("action triggered" + obj.action.name);
+        orderedJump = true;
     }
 
     private void OnDisable()
     {
         moveAction.Disable();
-        logAction.Disable();
+        jumpAction.Disable();
         mouseAction.Disable();
-    }
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        animator.SetBool("IsWalking", true);
+        jumpAction.performed -= Jump;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        /*Vector3 vector = Camera.main.ScreenToWorldPoint(mouseAction.ReadValue<Vector2>());
-        vector = Vector2.MoveTowards(transform.position, vector, speed);
-        transform.position = vector;*/
-        //Vector3 vector = ;
-        //transform.position += vector;
-        //transform.Translate(vector);
-    }
-    
+    [SerializeField] float jumpStrength;
+    [SerializeField] float gravitySpeed;
+    [SerializeField] float verticalVelocity = 0;
+    [SerializeField] float verticalSpeed;
+    [SerializeField] float gravitySpeedSlowed;
+    bool wasGrounded;
+
     private void FixedUpdate()
     {
         float input = moveAction.ReadValue<float>();
-        animator.SetBool("IsWalking", input != 0);
+
+
+        bool _onGround = Contacts();
+        Jump(_onGround);
+        HandleAnims(input);
+        
 
         renderer.flipX = input < 0;
 
-        Vector2 newPos = rigidbody2.position + new Vector2(input * speed, 0);
+        Vector2 newPos = rigidbody2.position +
+            new Vector2(
+                input * speed,
+                verticalVelocity * verticalSpeed);
+
         rigidbody2.MovePosition(newPos);
+        wasGrounded = _onGround;
+    }
+
+    private void HandleAnims(float input)
+    {
+        if (!Mathf.Approximately(verticalVelocity, 0))
+        {
+            animator.SetBool(IsFlyingHash, true);
+        }
+        else
+        {
+            animator.SetBool(IsHangHash, false);
+            animator.SetBool(IsFlyingHash, false);
+            animator.SetBool(IsWalkingHash, input != 0);
+        }
+    }
+
+
+    private bool Contacts()
+    {
+        int hitNumber = rigidbody2.GetContacts(contacts);
+        bool _onGround = false;
+        for (int i = 0; i < hitNumber; i++)
+        {
+            if (contacts[i].normal.y == 1)
+            {
+                _onGround = true;
+                break;
+            }
+            else if (contacts[i].normal.y == -1)
+                verticalVelocity = 0;
+
+        }
+
+        return _onGround;
+    }
+    private void Jump(bool _onGround)
+    {
+        if (_onGround)
+        {
+            if (!wasGrounded)
+            {
+                verticalVelocity = 0;
+            }
+            else if (orderedJump)
+            {
+                verticalVelocity = jumpStrength;
+            }
+        }
+        else
+        {
+            verticalVelocity -= gravitySpeed;
+        }
+        orderedJump = false;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
